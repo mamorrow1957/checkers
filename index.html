@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkers</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --dark-sq: #769656;
+      --light-sq: #eeeed2;
+      --red-piece: #c0392b;
+      --red-piece-hi: #e74c3c;
+      --black-piece: #2c3e50;
+      --black-piece-hi: #34495e;
+      --selected: #f1c40f;
+      --valid-move: rgba(241, 196, 15, 0.45);
+      --bg: #1a1a2e;
+      --panel: #16213e;
+      --text: #eaeaea;
+      --text-muted: #a0a0b0;
+      --accent: #0f3460;
+      --board-size: min(72vw, 560px);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    #app { width: 100%; max-width: 900px; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0 1rem;
+    }
+
+    header h1 { font-size: 1.8rem; letter-spacing: 0.05em; color: var(--selected); }
+
+    #status { font-size: 1rem; color: var(--text-muted); font-style: italic; }
+
+    main { display: flex; gap: 1.5rem; align-items: flex-start; }
+
+    /* Board */
+    #board-container { flex-shrink: 0; }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: var(--board-size);
+      height: var(--board-size);
+      border: 3px solid #444;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .square { display: flex; align-items: center; justify-content: center; cursor: default; position: relative; }
+    .square.dark  { background: var(--dark-sq); }
+    .square.light { background: var(--light-sq); }
+    .square.selected { background: var(--selected) !important; }
+    .square.valid-move { background: var(--valid-move) !important; cursor: pointer; }
+    .square.valid-move::after {
+      content: '';
+      width: 30%; height: 30%;
+      border-radius: 50%;
+      background: rgba(241, 196, 15, 0.7);
+    }
+
+    /* Pieces */
+    .piece {
+      width: 80%; height: 80%;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid rgba(0,0,0,0.35);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.15);
+      transition: transform 0.1s, box-shadow 0.1s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .piece:hover { transform: scale(1.06); }
+    .piece.red   { background: radial-gradient(circle at 35% 35%, var(--red-piece-hi),   var(--red-piece)); }
+    .piece.black { background: radial-gradient(circle at 35% 35%, var(--black-piece-hi), var(--black-piece)); }
+
+    .piece.king::after {
+      content: '♛';
+      font-size: calc(var(--board-size) / 18);
+      color: rgba(255,255,255,0.85);
+      line-height: 1;
+    }
+
+    .piece.selected-piece {
+      box-shadow: 0 0 0 4px var(--selected), 0 4px 16px rgba(0,0,0,0.5);
+      transform: scale(1.1);
+    }
+
+    /* Sidebar */
+    #sidebar { flex: 1; display: flex; flex-direction: column; gap: 1rem; min-width: 180px; }
+
+    #scores { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .score-card {
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex; align-items: center; gap: 0.6rem;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .score-card.active { border-color: var(--selected); }
+
+    .player-label { flex: 1; font-size: 0.9rem; }
+    .piece-count  { font-size: 1.4rem; font-weight: bold; min-width: 1.8rem; text-align: right; }
+
+    .piece-icon { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.3); }
+    .piece-icon.red-piece   { background: var(--red-piece); }
+    .piece-icon.black-piece { background: var(--black-piece); }
+
+    #controls { background: var(--panel); border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+    #new-game-btn {
+      background: var(--selected); color: #111;
+      border: none; border-radius: 6px;
+      padding: 0.6rem 1rem; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    #new-game-btn:hover { opacity: 0.85; }
+
+    #difficulty-wrap { display: flex; flex-direction: column; gap: 0.3rem; }
+    #difficulty-wrap label { font-size: 0.8rem; color: var(--text-muted); }
+
+    #difficulty {
+      background: var(--accent); color: var(--text);
+      border: 1px solid #444; border-radius: 5px;
+      padding: 0.35rem 0.5rem; font-size: 0.9rem; cursor: pointer;
+    }
+
+    #move-log { background: var(--panel); border-radius: 8px; padding: 1rem; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 0.5rem; }
+    #move-log h2 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    #move-list {
+      list-style-position: inside; font-size: 0.82rem; color: var(--text-muted);
+      overflow-y: auto; max-height: 240px;
+      display: flex; flex-direction: column-reverse; gap: 0.15rem;
+    }
+    #move-list li { padding: 0.15rem 0; }
+
+    /* Game Over */
+    #game-over-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    #game-over-overlay.hidden { display: none; }
+
+    #game-over-box {
+      background: var(--panel); border-radius: 12px;
+      padding: 2.5rem 3rem; text-align: center;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    #game-over-title { font-size: 2rem; color: var(--selected); }
+    #game-over-msg   { font-size: 1.1rem; color: var(--text-muted); }
+
+    #play-again-btn {
+      background: var(--selected); color: #111;
+      border: none; border-radius: 6px;
+      padding: 0.75rem 2rem; font-size: 1rem; font-weight: 600;
+      cursor: pointer; margin-top: 0.5rem; transition: opacity 0.15s;
+    }
+    #play-again-btn:hover { opacity: 0.85; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      :root { --board-size: 95vw; }
+      main { flex-direction: column; }
+      #sidebar { flex-direction: row; flex-wrap: wrap; }
+      #move-log { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Checkers</h1>
+      <div id="status" aria-live="polite">Your turn (Red)</div>
+    </header>
+
+    <main>
+      <div id="board-container">
+        <div id="board" role="grid" aria-label="Checkers board"></div>
+      </div>
+
+      <aside id="sidebar">
+        <div id="scores">
+          <div class="score-card" id="red-score-card">
+            <span class="player-label">You (Red)</span>
+            <span class="piece-count" id="red-count">12</span>
+            <span class="piece-icon red-piece"></span>
+          </div>
+          <div class="score-card" id="black-score-card">
+            <span class="player-label">AI (Black)</span>
+            <span class="piece-count" id="black-count">12</span>
+            <span class="piece-icon black-piece"></span>
+          </div>
+        </div>
+
+        <div id="controls">
+          <button id="new-game-btn">New Game</button>
+          <div id="difficulty-wrap">
+            <label for="difficulty">AI Difficulty</label>
+            <select id="difficulty">
+              <option value="1">Easy</option>
+              <option value="3" selected>Medium</option>
+              <option value="5">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="move-log">
+          <h2>Move History</h2>
+          <ol id="move-list" reversed></ol>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="game-over-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+    <div id="game-over-box">
+      <h2 id="game-over-title">Game Over</h2>
+      <p id="game-over-msg"></p>
+      <button id="play-again-btn">Play Again</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
