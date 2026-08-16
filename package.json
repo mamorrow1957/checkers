@@ -7,15 +7,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mamorrow1957/checkers.git"
+    "url": "git+https://gitlab.morroweb.com/michael/checkers.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Michael Morrow",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mamorrow1957/checkers/issues"
+    "url": "https://gitlab.morroweb.com/michael/checkers/-/issues"
   },
-  "homepage": "https://github.com/mamorrow1957/checkers#readme",
+  "homepage": "https://gitlab.morroweb.com/michael/checkers",
   "devDependencies": {
     "@playwright/test": "^1.59.1"
   }

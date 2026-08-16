@@ -180,9 +180,17 @@ npx playwright install
 npm test
 ```
 
+### Continuous Integration
+
+Tests run automatically on GitLab CI on every push to `main` or `dev`, and on every merge request targeting `main`. The pipeline installs Chromium inside a `node:20` Docker container, runs the full test suite, and uploads the HTML report as a downloadable artifact (14-day retention).
+
+### Deployment
+
+A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitLab shell runner installed on the `checkers.local` server. The job runs `scripts/deploy.sh`, which backs up `/var/www/html` and rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files).
+
 ### Test Suite Overview
 
-20 tests organised into 8 groups:
+21 tests organised into 8 groups:
 
 | Group | Tests | Description |
 |---|---|---|
@@ -193,7 +201,7 @@ npm test
 | Difficulty selector | 3 | Correct options present, default is Medium, change persists and game continues |
 | Accessibility | 3 | `role=grid` on board, `aria-live=polite` on status, `role=dialog` on overlay |
 | Game over overlay | 2 | Overlay hidden at start, Play Again resets board |
-| Responsive layout | 1 | Board visible on 390×844 mobile viewport |
+| Responsive layout | 2 | Board visible on 390×844 portrait and 844×390 landscape mobile viewports |
 
 ---
 
@@ -207,6 +215,8 @@ The script backs up `/var/www/html` and rsyncs the application files (excluding 
 
 ---
 
+---
+
 ## File Structure
 
 ```
@@ -214,10 +224,12 @@ checkers/
 ├── index.html               # Application shell (HTML + inline CSS)
 ├── game.js                  # Game engine, AI, and UI logic
 ├── checkers-spec.md         # This document
+├── LICENSE
 ├── playwright.config.js
 ├── package.json
 ├── scripts/
 │   └── deploy.sh            # Deployment script (rsync to /var/www/html)
+├── .gitlab-ci.yml           # GitLab CI/CD pipeline
 └── tests/
-    └── checkers.spec.js     # Playwright test suite (20 tests)
+    └── checkers.spec.js     # Playwright test suite (21 tests)
 ```

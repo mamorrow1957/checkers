@@ -230,8 +230,15 @@ test.describe("Game over overlay", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 test.describe("Responsive layout", () => {
-  test("board is visible on mobile viewport", async ({ page }) => {
+  test("board is visible on portrait mobile viewport (390x844)", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    await loadPage(page);
+    await expect(page.locator("#board")).toBeVisible();
+    await expect(page.locator(".piece.red")).toHaveCount(12);
+  });
+
+  test("board is visible on landscape mobile viewport (844x390)", async ({ page }) => {
+    await page.setViewportSize({ width: 844, height: 390 });
     await loadPage(page);
     await expect(page.locator("#board")).toBeVisible();
     await expect(page.locator(".piece.red")).toHaveCount(12);

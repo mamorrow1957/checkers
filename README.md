@@ -16,12 +16,14 @@ A browser-based checkers game with an AI opponent, deployed to [checkers.local](
 checkers/
 ├── index.html          # App shell, layout, and all styles
 ├── game.js             # Game engine, AI, and rendering
+├── LICENSE
 ├── scripts/
 │   └── deploy.sh       # Rsync deploy to /var/www/html
 ├── tests/
 │   └── checkers.spec.js
 ├── package.json
-└── playwright.config.js
+├── playwright.config.js
+└── .gitlab-ci.yml      # CI: run tests (Docker/node:20), deploy on main
 ```
 
 ## How to Play
