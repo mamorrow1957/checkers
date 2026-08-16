@@ -190,11 +190,11 @@ A deploy job runs automatically after tests pass on `main`. It runs on a self-ho
 
 ### Test Suite Overview
 
-21 tests organised into 8 groups:
+25 tests organised into 8 groups:
 
 | Group | Tests | Description |
 |---|---|---|
-| Initial state | 6 | Page title, 64 squares, 12+12 pieces, correct starting positions, status text, active score card |
+| Initial state | 7 | Page title, 64 squares, 12+12 pieces, correct starting positions, status text, active score card |
 | Piece selection | 4 | Highlight on click, valid-move indicators shown, re-selection updates highlight, black pieces non-selectable |
 | Making a move | 3 | Piece relocates to destination, AI responds and returns to player's turn, move logged in history |
 | New game | 1 | Board resets to 12+12, history clears, status resets |
@@ -231,5 +231,5 @@ checkers/
 │   └── deploy.sh            # Deployment script (rsync to /var/www/html)
 ├── .gitlab-ci.yml           # GitLab CI/CD pipeline
 └── tests/
-    └── checkers.spec.js     # Playwright test suite (21 tests)
+    └── checkers.spec.js     # Playwright test suite (25 tests)
 ```
