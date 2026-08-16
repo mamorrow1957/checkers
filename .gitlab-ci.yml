@@ -29,8 +29,7 @@ deploy:
   tags:
     - self-hosted
   script:
-    - cd ~/checkers && git pull origin main
-    - ~/checkers/scripts/deploy.sh
+    - scripts/deploy.sh
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
   needs:
